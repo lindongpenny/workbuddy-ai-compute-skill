@@ -1,0 +1,74 @@
+{
+  "version": "1.1.0",
+  "mode": "dry-run",
+  "new_api": {
+    "adapter": "new-api-rc48-user",
+    "base_url": "https://www.lianhuaai.com:8091",
+    "model_base_url": "https://token.lianhuaai.com/v1",
+    "api_version": "rc.48+",
+    "endpoints": {
+      "status": "/api/status",
+      "register": "/api/user/register",
+      "login": "/api/user/login",
+      "user_self": "/api/user/self",
+      "create_token": "/api/token/",
+      "list_tokens": "/api/token/?p=0&size=100",
+      "reveal_token": "/api/token/{id}/key",
+      "topup": "/api/user/topup",
+      "chat_completions": "/chat/completions"
+    },
+    "test_credit": {
+      "amount": 10,
+      "currency": "CNY",
+      "source": "server new-user quota, auto-granted on register (verified configured on lianhua site)",
+      "redeem_code_env": "NEW_API_REDEEM_CODE"
+    },
+    "notes": [
+      "base_url = management host (register/login/balance); model_base_url = inference host, kept with /v1 so internal /chat/completions verification resolves correctly",
+      "new-user quota is auto-granted by site admin; user API cannot issue credit; redeem code path kept as fallback only"
+    ]
+  },
+  "workbuddy": {
+    "adapter": "models-json-list",
+    "config_path": "~/.workbuddy/models.json",
+    "values": {
+      "provider": "Custom",
+      "base_url": "https://token.lianhuaai.com/",
+      "api_key": null,
+      "api_key_env": "WORKBUDDY_KIMI_API_KEY",
+      "model": "kimi-k3.1-pro",
+      "display_name": "kimi-k3.1-pro",
+      "supports_tool_call": true,
+      "supports_images": true,
+      "supports_reasoning": true,
+      "reasoning_supported_efforts": ["high", "xhigh"],
+      "max_input_tokens": null,
+      "max_output_tokens": null
+    },
+    "notes": [
+      "model/display_name are lowercase to match the live model ID verified on the lianhua site; uppercase Kimi-K3.1-Pro does not resolve",
+      "workbuddy base_url intentionally has NO /v1: this is the exact value already working in the user's models.json; WorkBuddy appends the completion path itself",
+      "capability flags and reasoning.supportedEfforts mirror the user's verified working entry; max_input_tokens/max_output_tokens are intentionally null so the written entry has NO token-cap fields, exactly matching the user's working config (WorkBuddy then uses the model's native 1M context)"
+    ]
+  },
+  "reminders": {
+    "enabled": false,
+    "schedule": "0 */6 * * *",
+    "interval_hours": 6,
+    "threshold_cny": 2,
+    "timezone": "Asia/Shanghai",
+    "channel": null,
+    "recharge_url": null,
+    "notes": [
+      "new-user credit is auto-granted; redeem flow is fallback only",
+      "model-driven scheduled task may not start when quota is exhausted; recharge URL is the manual fallback"
+    ]
+  },
+  "security": {
+    "timeout_seconds": 15,
+    "verify_tls": true,
+    "allow_live": false,
+    "allow_filesystem_write": false,
+    "redact_secrets": true
+  }
+}
